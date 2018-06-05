@@ -1,6 +1,7 @@
 import Express from 'express'
 import Tags from '../../models/tags'
 import Article from '../../models/article'
+import Interact from '../../models/interact'
 import {responseClient} from '../util'
 
 const router = Express.Router();
@@ -67,5 +68,45 @@ router.get('/getArticleDetail', (req, res) => {
        responseClient(res);
    });
 });
+
+//获取评论
+router.get('/getComments', function (req, res) {
+    let responseData = {
+        list: []
+    };
+    ///*
+    Interact.find({type:'1'}, 'visitor comment parent').then(data => {
+        responseData.list = data;
+        responseClient(res, 200, 0, '请求成功', responseData);
+    }).catch(err => {
+        responseClient(res);
+    })
+    //*/
+});
+
+router.post('/addComment', function (req, res) {
+    const {
+        visitor,
+        comment,
+        type,
+        parent,
+        time
+    } = req.body;
+    ;
+    let tempComment = new Interact({
+        visitor,
+        comment,
+        type,
+        parent,
+        time
+    });
+    tempComment.save().then(data=>{
+        responseClient(res,200,0,'留言成功',data)
+    }).cancel(err=>{
+        console.log(err);
+        responseClient(res);
+    });
+});
+
 
 module.exports = router;
