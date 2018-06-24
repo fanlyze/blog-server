@@ -98,7 +98,8 @@ router.get('/userInfo',function (req,res) {
 
 router.get('/logout',function (req,res) {
     req.session.destroy();
-    res.redirect('/');
+    responseClient(res,200,0,'退出成功','')
+    //res.redirect('/');
 });
 
 module.exports = router;

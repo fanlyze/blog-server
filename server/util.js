@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 
 module.exports = {
-    MD5_SUFFIX: 'eiowafnajkdlfjsdkfj大姐夫文姐到了困难额我积分那看到你@#￥%……&）（*&……）',
+    MD5_SUFFIX: '&^%$#@!QAZ2wsx*()_+',
     md5: function (pwd) {
         let md5 = crypto.createHash('md5');
         return md5.update(pwd).digest('hex')

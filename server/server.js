@@ -13,7 +13,7 @@ app.use('/api',(req,res)=>{
     proxy.web(req,res,{target:targetUrl})
 });
 
-
+app.use(compression());
 app.use('/', connectHistoryApiFallback());
 app.use('/',Express.static(path.join(__dirname,"..",'build')));
 app.use('/',Express.static(path.join(__dirname,"..",'static')));
@@ -24,13 +24,13 @@ const proxy = httpProxy.createProxyServer({
     target:targetUrl
 });
 
-app.use(compression());
+//app.use(compression());
 app.use(favicon(path.join(__dirname,'..','static','favicon.ico')));
 
 
 
 //热更新
-if(process.env.NODE_EVN!=='production'){
+if(process.env.NODE_ENV!=='production'){
     const Webpack = require('webpack');
     const WebpackDevMiddleware = require('webpack-dev-middleware');
     const WebpackHotMiddleware = require('webpack-hot-middleware');
@@ -38,7 +38,7 @@ if(process.env.NODE_EVN!=='production'){
 
     const compiler = Webpack(webpackConfig);
     /*
-    //cpu占用过高  --zyf
+    //cpu占用过高
     app.use(WebpackDevMiddleware(compiler, {
         publicPath: '/',
         stats: {colors: true},
@@ -50,7 +50,7 @@ if(process.env.NODE_EVN!=='production'){
     }));
     app.use(WebpackHotMiddleware(compiler));
     */
-   //modify by zyf
+   
     app.use(WebpackDevMiddleware(compiler, {
         publicPath: '/',
         stats: {colors: true},
