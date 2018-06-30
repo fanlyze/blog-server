@@ -40,7 +40,7 @@ router.get('/getArticles', function (req, res) {
     Article.count(searchCondition)
         .then(count => {
             responseData.total = count;
-            Article.find(searchCondition, '_id title isPublish author viewCount commentCount time coverImg', {
+            Article.find(searchCondition, '_id title abstract isPublish author viewCount commentCount time coverImg', {
                 skip: skip,
                 limit: 5
             })
@@ -103,8 +103,9 @@ router.get('/getComments', function (req, res) {
     let responseData = {
         list: []
     };
+
     ///*
-    Interact.find({type:'1'}, 'visitor comment parent type time').sort({time:-1}).then(data => {
+    Interact.find({type:'1'}, 'visitor comment parent type time img').sort({time:-1}).then(data => {
         responseData.list = data;
         responseClient(res, 200, 0, '请求成功', responseData);
     }).catch(err => {
@@ -121,13 +122,30 @@ router.post('/addComment', function (req, res) {
         parent,
         time
     } = req.body;
-    let visitor = req.headers['x-real-ip'] ? req.headers['x-real-ip'] : req.ip.replace(/::ffff:/, '');
-    visitor = "visitor"+md5(visitor).substr(1,5);
+    let visitor_ip = req.headers['x-real-ip'] ? req.headers['x-real-ip'] : req.ip.replace(/::ffff:/, '');
+    let visitor = "visitor"+md5(visitor_ip).substr(1,5);
+
+    var visitor_ip_tmp = visitor_ip.replace(/\./g, '');
+    Math.seed =  parseInt(visitor_ip_tmp);
+    Math.seededRandom = function(max, min)
+    {
+       max = max || 35; min = min || 0;
+       Math.seed = (Math.seed * 9301 + 49297) % 233280;
+       var rnd = Math.seed / 233280.0;
+       return min + rnd * (max - min);
+    };
+    let img = "/interact/"+ parseInt(Math.seededRandom()) + ".jpg";
+    if(typeof req.session.userInfo != 'undefined') {
+        visitor = req.session.userInfo.username;
+        img = req.session.userInfo.userimg;
+    }
+
     let tempComment = new Interact({
         visitor,
         comment,
         type,
         parent,
+        img,
         time
     });
     let responseData = {
@@ -135,7 +153,7 @@ router.post('/addComment', function (req, res) {
     };
     tempComment.save().then(data=>{
         //responseClient(res,200,0,'留言成功',data)
-        Interact.find({type:'1'}, 'visitor comment parent type time').sort({time:-1}).then(data => {
+        Interact.find({type:'1'}, 'visitor comment parent type time img').sort({time:-1}).then(data => {
             responseData.list = data;
             responseClient(res, 200, 0, '留言成功', responseData);
         }).catch(err => {

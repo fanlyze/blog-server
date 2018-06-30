@@ -7,6 +7,7 @@ module.exports = new mongoose.Schema({
     visitor:String,
     comment:String,
     parent:String,
+    img:String,
     time:String,
     type:String
 });

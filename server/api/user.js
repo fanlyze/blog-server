@@ -28,6 +28,7 @@ router.post('/login', (req, res) => {
             data.username = userInfo.username;
             data.userType = userInfo.type;
             data.userId = userInfo._id;
+            data.userimg = userInfo.userimg;
             //登录成功后设置session
             req.session.userInfo = data;
 
@@ -56,6 +57,18 @@ router.post('/register', (req, res) => {
         responseClient(res, 400, 2, '两次密码不一致');
         return;
     }
+    let visitor_ip = req.headers['x-real-ip'] ? req.headers['x-real-ip'] : req.ip.replace(/::ffff:/, '');
+    var visitor_ip_tmp = visitor_ip.replace(/\./g, '');
+    Math.seed =  parseInt(visitor_ip_tmp);
+    Math.seededRandom = function(max, min)
+    {
+       max = max || 35; min = min || 0;
+       Math.seed = (Math.seed * 9301 + 49297) % 233280;
+       var rnd = Math.seed / 233280.0;
+       return min + rnd * (max - min);
+    };
+    let img = "/interact/"+ parseInt(Math.seededRandom()) + ".jpg";
+
     //验证用户是否已经在数据库中
     User.findOne({username: userName})
         .then(data => {
@@ -67,6 +80,7 @@ router.post('/register', (req, res) => {
             let user = new User({
                 username: userName,
                 password: md5(password + MD5_SUFFIX),
+                userimg: img,
                 type: 'user'
             });
             user.save()
@@ -77,6 +91,7 @@ router.post('/register', (req, res) => {
                             data.username = userInfo.username;
                             data.userType = userInfo.type;
                             data.userId = userInfo._id;
+                            data.userimg = userInfo.userimg;
                             responseClient(res, 200, 0, '注册成功', data);
                             return;
                         });

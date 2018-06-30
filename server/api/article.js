@@ -7,17 +7,21 @@ import {responseClient} from '../util'
 router.post('/addArticle', function (req, res) {
     const {
         title,
+        abstract,
         content,
+        coverImg,
         time,
         tags,
         isPublish
     } = req.body;
     const author = req.session.userInfo.username;
-    const coverImg =  `/${Math.round(Math.random() * 9 + 1)}.jpg`;
+    //const coverImg =  `/${Math.round(Math.random() * 9 + 1)}.jpg`;
+    //const coverImg =  "/article/" + req.body.coverImg;
     const viewCount = 0;
     const commentCount = 0;
     let tempArticle = new Article({
         title,
+        abstract,
         content,
         isPublish,
         viewCount,

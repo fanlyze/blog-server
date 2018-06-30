@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 
 module.exports = new mongoose.Schema({
     title:String,//文章标题
+    abstract:String,//文章摘要
     content:String,//文章内容
     viewCount:Number,//浏览次数
     commentCount:Number,//评论次数

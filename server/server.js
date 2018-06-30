@@ -27,8 +27,6 @@ const proxy = httpProxy.createProxyServer({
 //app.use(compression());
 app.use(favicon(path.join(__dirname,'..','static','favicon.ico')));
 
-
-
 //热更新
 if(process.env.NODE_ENV!=='production'){
     const Webpack = require('webpack');
@@ -62,7 +60,6 @@ if(process.env.NODE_ENV!=='production'){
         heartbeat: 10 * 1000,
     }));
 }
-
 app.listen(port,(err)=>{
     if(err){
         console.error(err)
