@@ -12,7 +12,11 @@ const port = config.port;
 app.use('/api',(req,res)=>{
     proxy.web(req,res,{target:targetUrl})
 });
-
+/*
+app.get('/', function (req, res) {
+  console.log("hahahahahhaha");
+});
+*/
 app.use(compression());
 app.use('/', connectHistoryApiFallback());
 app.use('/',Express.static(path.join(__dirname,"..",'build')));
@@ -48,7 +52,7 @@ if(process.env.NODE_ENV!=='production'){
     }));
     app.use(WebpackHotMiddleware(compiler));
     */
-   
+
     app.use(WebpackDevMiddleware(compiler, {
         publicPath: '/',
         stats: {colors: true},

@@ -4,7 +4,7 @@ import Article from '../../models/article'
 import Interact from '../../models/interact'
 import Timeline from '../../models/timeline'
 import Friendlink from '../../models/friendlink'
-import Crawlers from '../../models/Crawler'
+import Crawlers from '../../models/crawler'
 import {responseClient,md5} from '../util'
 
 const router = Express.Router();
@@ -100,12 +100,15 @@ router.get('/getFriendLink', function (req, res) {
 
 //获取评论
 router.get('/getComments', function (req, res) {
+    let _type = req.query.type;
+    let _aId = req.query.aId;
     let responseData = {
         list: []
     };
 
     ///*
-    Interact.find({type:'1'}, 'visitor comment parent type time img').sort({time:-1}).then(data => {
+    //find  {type:_type, aId:_aId}
+    Interact.find(null, 'visitor comment parent type time img aId').sort({time:-1}).then(data => {
         responseData.list = data;
         responseClient(res, 200, 0, '请求成功', responseData);
     }).catch(err => {
@@ -120,7 +123,8 @@ router.post('/addComment', function (req, res) {
         comment,
         type,
         parent,
-        time
+        time,
+        aId
     } = req.body;
     let visitor_ip = req.headers['x-real-ip'] ? req.headers['x-real-ip'] : req.ip.replace(/::ffff:/, '');
     let visitor = "visitor"+md5(visitor_ip).substr(1,5);
@@ -146,14 +150,15 @@ router.post('/addComment', function (req, res) {
         type,
         parent,
         img,
-        time
+        time,
+        aId
     });
     let responseData = {
         list: []
     };
     tempComment.save().then(data=>{
         //responseClient(res,200,0,'留言成功',data)
-        Interact.find({type:'1'}, 'visitor comment parent type time img').sort({time:-1}).then(data => {
+        Interact.find(null, 'visitor comment parent type time img aId').sort({time:-1}).then(data => {
             responseData.list = data;
             responseClient(res, 200, 0, '留言成功', responseData);
         }).catch(err => {

@@ -9,5 +9,6 @@ module.exports = new mongoose.Schema({
     parent:String,
     img:String,
     time:String,
-    type:String
+    type:String,
+    aId:String
 });
