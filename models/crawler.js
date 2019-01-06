@@ -1,3 +1,3 @@
 import mongoose from 'mongoose'
-import crawlerSchema from '../schemas/crawler'
+import crawlerSchema from './schemas/crawler'
 module.exports =  mongoose.model('crawler',crawlerSchema);

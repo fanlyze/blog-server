@@ -33,16 +33,19 @@ router.get('/getArticles', function (req, res) {
         searchCondition = null
     }
     let skip = (req.query.pageNum - 1) < 0 ? 0 : (req.query.pageNum - 1) * 5;
+    let limit = req.query.pageNum * 5;
     let responseData = {
         total: 0,
+        pageNum:1,
         list: []
     };
+    responseData.pageNum = parseInt(req.query.pageNum);
     Article.count(searchCondition)
         .then(count => {
             responseData.total = count;
             Article.find(searchCondition, '_id title abstract isPublish author viewCount commentCount time coverImg', {
-                skip: skip,
-                limit: 5
+                //skip: skip,
+                limit: limit
             })
                 .then(result => {
                     responseData.list = result;

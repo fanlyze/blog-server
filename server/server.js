@@ -12,13 +12,18 @@ const port = config.port;
 app.use('/api',(req,res)=>{
     proxy.web(req,res,{target:targetUrl})
 });
-/*
-app.get('/', function (req, res) {
-  console.log("hahahahahhaha");
-});
-*/
 app.use(compression());
+app.use(connectHistoryApiFallback({
+  rewrites: [
+    { from: /^\/admin/, to: '/admin.html' }
+  ]
+}))
+/*app.get(/^\/admin/,function(req,res){
+    res.redirect('/admin.html');
+});*/
 app.use('/', connectHistoryApiFallback());
+
+// 路由
 app.use('/',Express.static(path.join(__dirname,"..",'build')));
 app.use('/',Express.static(path.join(__dirname,"..",'static')));
 
@@ -55,13 +60,15 @@ if(process.env.NODE_ENV!=='production'){
 
     app.use(WebpackDevMiddleware(compiler, {
         publicPath: '/',
+	//不打印输出生成的文件
+	//quiet: true,
         stats: {colors: true},
 
     }));
     app.use(WebpackHotMiddleware(compiler, {
         log: console.log,
         path: '/__webpack_hmr',
-        heartbeat: 10 * 1000,
+        heartbeat: 2 * 1000,
     }));
 }
 app.listen(port,(err)=>{
