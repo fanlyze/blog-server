@@ -57,6 +57,19 @@ router.get('/getArticles', function (req, res) {
         responseClient(res);
     });
 });
+router.get('/getAllArticles', function (req, res) {
+    let responseData = {
+        list: []
+    };
+    Article.find(null, '_id title abstract isPublish author viewCount commentCount time coverImg')
+        .then(result => {
+            responseData.list = result;
+            responseClient(res, 200, 0, 'success', responseData);
+        }).cancel(err => {
+        responseClient(res);
+    })
+
+});
 //获取文章详情
 router.get('/getArticleDetail', (req, res) => {
     let _id = req.query.id;
