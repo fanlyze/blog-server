@@ -1,7 +1,7 @@
 import Express from 'express'
 
 const router = Express.Router();
-import Comment from '../../models/interact'
+import {Comment} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 

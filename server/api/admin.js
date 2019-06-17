@@ -1,6 +1,6 @@
 import Express from 'express'
 const router = Express.Router();
-import User from '../../models/user'
+import {User} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 //admin请求后台验证

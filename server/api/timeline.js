@@ -1,7 +1,7 @@
 import Express from 'express'
 
 const router = Express.Router();
-import Timeline from '../../models/timeline'
+import {Timeline} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 router.get('/getTimelineDetail', (req, res) => {

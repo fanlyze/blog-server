@@ -1,7 +1,7 @@
 import Express from 'express'
 
 const router = Express.Router();
-import Friendlink from '../../models/friendlink'
+import {Friendlink} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 

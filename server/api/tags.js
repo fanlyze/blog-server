@@ -1,7 +1,7 @@
 import Express from 'express'
 
 const router = Express.Router();
-import Tags from '../../models/tags'
+import {Tags} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 //删除标签

@@ -1,7 +1,7 @@
 import Express from 'express'
 
 const router = Express.Router();
-import Article from '../../models/article'
+import {Article} from '../../models/mongooseModels'
 import {responseClient} from '../util'
 
 router.post('/addArticle', function (req, res) {

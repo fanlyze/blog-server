@@ -1,10 +1,5 @@
 import Express from 'express'
-import Tags from '../../models/tags'
-import Article from '../../models/article'
-import Interact from '../../models/interact'
-import Timeline from '../../models/timeline'
-import Friendlink from '../../models/friendlink'
-import Crawlers from '../../models/crawler'
+import {Article,Interact,Timeline,Tags,Friendlink,Crawlers,Visitrecord} from '../../models/mongooseModels'
 import {responseClient,md5} from '../util'
 
 const router = Express.Router();
@@ -175,6 +170,24 @@ router.post('/addComment', function (req, res) {
     tempComment.save().then(data=>{
         //responseClient(res,200,0,'留言成功',data)
         Interact.find(null, 'visitor comment parent type time img aId').sort({time:-1}).then(data => {
+
+            if(type == 2) {
+                let _id = aId;
+                Article.findOne({_id})
+                   .then(data=>{
+                       data.commentCount = data.commentCount+1;
+                       Article.update({_id},{commentCount:data.commentCount})
+                           .then(result=>{
+                               //responseClient(res,200,0,'success',data);
+                           }).cancel(err=>{
+                               throw err;
+                       })
+
+                   }).cancel(err => {
+                   responseClient(res);
+                });
+            }
+
             responseData.list = data;
             responseClient(res, 200, 0, '留言成功', responseData);
         }).catch(err => {
@@ -186,7 +199,7 @@ router.post('/addComment', function (req, res) {
     });
 });
 
-//获取
+//获取栏目网站
 router.get('/getColumn', function (req, res) {
     let responseData = {
         list: []
@@ -199,6 +212,101 @@ router.get('/getColumn', function (req, res) {
     }).catch(err => {
         responseClient(res);
     })
+});
+
+router.get('/getWebsiteInfo', function (req, res) {
+    let responseData = {};
+    var promiseBluebird = require('bluebird');
+    var getArticleCnt = function(cfg){
+        return new promiseBluebird(function(resolve, reject){
+            Article.count()
+                .then(count => {
+                    responseData.articleTotal = count;
+                    resolve(count);
+                }).cancel(err => {
+                //responseClient(res);
+                reject(err);
+            });
+        });
+    }
+    var getCommentCnt = function(cfg){
+        return new promiseBluebird(function(resolve, reject){
+
+            Interact.count()
+                .then(count => {
+                    responseData.commentTotal = count;
+                    resolve(count);
+
+                }).cancel(err => {
+                //responseClient(res);
+                reject(err);
+            });
+
+        });
+    }
+    var getVisitCnt = function(cfg){
+        return new promiseBluebird(function(resolve, reject){
+
+            Visitrecord.aggregate([{$group:{_id:"null", count:{ $sum:"$count"}}}])
+                .then(obj => {
+                    responseData.visitTotal = obj[0].count;
+                    //resolve(count);
+                    responseClient(res, 200, 0, '请求成功', responseData);
+
+                }).cancel(err => {
+                //responseClient(res);
+                reject(err);
+            });
+        });
+    }
+    var setVisitCnt = function(cfg){
+        return new promiseBluebird(function(resolve, reject){
+
+            let visitor_ip = req.headers['x-real-ip'] ? req.headers['x-real-ip'] : req.ip.replace(/::ffff:/, '');
+            Visitrecord.findOne({ip: visitor_ip})
+               .then(data=>{
+                    let dateFormat = require('dateformat');
+                    let time = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss');
+                    if(data == null) {
+                       let count = 1;
+                       let tmpVisitrecord = new Visitrecord({
+                           ip: visitor_ip,
+                           time,
+                           count
+                       });
+                       tmpVisitrecord.save().then(data=>{
+                           resolve(data);
+                       }).cancel(err=>{
+                           reject(err);
+                       });
+                    } else {
+                        let nowDate = new Date(data.time);
+                        if(Date.now()-nowDate.getTime()>30*60*1000) {
+                            data.count = data.count+1;
+                        }
+                        Visitrecord.update({ip: visitor_ip},{count:data.count,time:time})
+                           .then(result=>{
+                               resolve(result);
+                           }).cancel(err=>{
+                               reject(err);
+                       })
+                   }
+               }).cancel(err => {
+               responseClient(res);
+            });
+
+
+
+        });
+    }
+
+
+    //文章数、评论数、访问数
+    getArticleCnt().then(getCommentCnt).then(getVisitCnt).catch(err => {
+        responseClient(res);
+    })
+    setVisitCnt();
+
 });
 
 module.exports = router;
